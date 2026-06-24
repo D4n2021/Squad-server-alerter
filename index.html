@@ -162,30 +162,30 @@
             resultsDiv.style.display = "block";
             resultsDiv.innerHTML = "Fetching and filtering servers...";
 
-            // Added 'include=server' to ensure detailed attributes are returned
             const url = 'https://api.battlemetrics.com/servers?filter%5Bgame%5D=squad&page%5Bsize%5D=50';
             
+            // Get the user's minimum player count input
+            const minPlayersInput = parseInt(document.getElementById('playerCount').value) || 0;
+
             fetch(url, { headers: { "Accept": "application/vnd.api+json" } })
             .then(response => response.json())
             .then(data => {
                 const allServers = data.data;
+
+                // FILTERING LOGIC: Here we check if the server's player count is >= minPlayersInput
+                const filtered = allServers.filter(server => {
+                    const players = server.attributes.players || 0;
+                    return players >= minPlayersInput;
+                });
                 
-                // This will build our list of HTML server cards
-                let htmlOutput = `<h3>Results:</h3>`;
+                let htmlOutput = `<h3>Found ${filtered.length} servers with at least ${minPlayersInput} players:</h3>`;
 
-                allServers.forEach(server => {
+                filtered.forEach(server => {
                     const attr = server.attributes;
-                    // Safely getting data even if some fields are missing
-                    const name = attr.name || "Unknown Server";
-                    const players = attr.players !== undefined ? attr.players : "N/A";
-                    const maxPlayers = attr.maxPlayers !== undefined ? attr.maxPlayers : "N/A";
-                    const country = attr.country || "Unknown";
-
-                    // Construct a visual card for each server
                     htmlOutput += `
                         <div class="server-card" style="background:#333; padding:10px; margin:5px 0; border-radius:5px;">
-                            <div class="server-name" style="color:#4CAF50; font-weight:bold;">${name}</div>
-                            <div class="server-details">Players: ${players}/${maxPlayers} | Country: ${country}</div>
+                            <div class="server-name" style="color:#4CAF50; font-weight:bold;">${attr.name}</div>
+                            <div class="server-details">Players: ${attr.players}/${attr.maxPlayers}</div>
                         </div>
                     `;
                 });
@@ -193,7 +193,7 @@
                 resultsDiv.innerHTML = htmlOutput;
             })
             .catch(error => {
-                resultsDiv.innerHTML = "<strong>Error:</strong> Could not retrieve server list. " + error.message;
+                resultsDiv.innerHTML = "<strong>Error:</strong> " + error.message;
             });
         }
     </script>
