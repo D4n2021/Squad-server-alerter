@@ -157,13 +157,11 @@
 
         window.onload = init;
 
-        // NEW DIRECT FETCH LOGIC WITH FILTERS
         function filterServers() {
             const resultsDiv = document.getElementById('results');
             resultsDiv.style.display = "block";
-            resultsDiv.innerHTML = "Querying Battlemetrics directly from your browser... Please wait.";
+            resultsDiv.innerHTML = "Querying Battlemetrics... Check your Browser Console (F12) for debugging details.";
 
-            // 1. Gather current filter values from the DOM
             const maxPlayers = parseInt(document.getElementById('playerCount').value) || 99;
             const selectedRegions = Array.from(document.querySelectorAll('input[name="region"]:checked')).map(cb => cb.value);
             const selectedModes = Array.from(document.querySelectorAll('input[name="mode"]:checked')).map(cb => cb.value.toLowerCase());
@@ -171,21 +169,17 @@
 
             const url = 'https://api.battlemetrics.com/servers?filter%5Bgame%5D=squad&page%5Bsize%5D=50';
             
-            fetch(url, {
-                headers: {
-                    "Accept": "application/vnd.api+json"
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("HTTP Status " + response.status);
-                }
-                return response.json();
-            })
+            fetch(url, { headers: { "Accept": "application/vnd.api+json" } })
+            .then(response => response.json())
             .then(data => {
+                console.log("Full API Response:", data); // DEBUG: Look at this in your console
                 const allServers = data.data;
 
-                // Map continents to common ISO 3166-1 country codes returned by Battlemetrics
+                if (!allServers || allServers.length === 0) {
+                    resultsDiv.innerHTML = "No servers found in API response.";
+                    return;
+                }
+
                 const regionMap = {
                     "Europe": ["DE", "FR", "GB", "NL", "SE", "FI", "PL", "ES", "IT", "RU", "UA", "CH", "AT", "DK", "NO", "BE", "IE", "PT", "CZ", "RO"],
                     "North America": ["US", "CA", "MX"],
@@ -195,71 +189,28 @@
                     "South America": ["BR", "AR", "CL", "CO", "PE", "UY"]
                 };
 
-                // 2. Filter down the data based on your logic
                 const filteredServers = allServers.filter(server => {
                     const attrs = server.attributes;
-                    const details = attrs.details || {};
-                    const serverMapStr = (details.map || "").toLowerCase();
-                    const serverModeStr = (details.gameMode || "").toLowerCase();
-
-                    // Player Count filter (checks if the server has fewer or equal players to your max cap)
+                    // Debugging specific server objects
+                    console.log("Checking Server:", attrs.name, "| Country:", attrs.country, "| Map:", attrs.details?.map);
+                    
                     if (attrs.players > maxPlayers) return false;
-
-                    // Region filter
+                    
                     if (selectedRegions.length > 0) {
-                        const isRegionMatch = selectedRegions.some(region => 
-                            regionMap[region] && regionMap[region].includes(attrs.country)
-                        );
+                        const isRegionMatch = selectedRegions.some(reg => regionMap[reg]?.includes(attrs.country));
                         if (!isRegionMatch) return false;
                     }
-
-                    // Game Mode filter 
-                    if (selectedModes.length > 0) {
-                        const isModeMatch = selectedModes.some(mode => 
-                            serverMapStr.includes(mode) || serverModeStr.includes(mode)
-                        );
-                        if (!isModeMatch) return false;
-                    }
-
-                    // Map filter
-                    if (selectedMaps.length > 0) {
-                        const isMapMatch = selectedMaps.some(mapName => serverMapStr.includes(mapName));
-                        if (!isMapMatch) return false;
-                    }
-
-                    // Passed all checks
+                    
+                    // Add more console logs if these fail
                     return true;
                 });
 
-                // 3. Render Results to the UI
-                if (filteredServers.length === 0) {
-                     resultsDiv.innerHTML = `<strong>Success!</strong> Fetched ${allServers.length} servers from Battlemetrics, but <strong>0</strong> matched your criteria. Try loosening your filters.`;
-                     return;
-                }
-
-                let html = `<strong>Success!</strong> Found ${filteredServers.length} matching servers (out of ${allServers.length} fetched).<br>`;
-                
-                filteredServers.forEach(server => {
-                    const attrs = server.attributes;
-                    html += `
-                        <div class="server-card">
-                            <div class="server-name">${attrs.name}</div>
-                            <div class="server-details">
-                                <strong>Players:</strong> ${attrs.players} / ${attrs.maxPlayers} &nbsp;|&nbsp; 
-                                <strong>Map:</strong> ${attrs.details?.map || "Unknown"} &nbsp;|&nbsp; 
-                                <strong>Country:</strong> ${attrs.country}
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                resultsDiv.innerHTML = html;
+                resultsDiv.innerHTML = `Found ${filteredServers.length} servers matching your criteria. Check console for details.`;
             })
             .catch(error => {
-                resultsDiv.innerHTML = `<strong>Fetch Failed:</strong> ${error.message}`;
-                console.error("Fetch error details:", error);
+                resultsDiv.innerHTML = "Error: " + error.message;
             });
-        }
+        }        
     </script>
 </body>
 </html>
