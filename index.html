@@ -4,27 +4,54 @@
     <meta charset="UTF-8">
     <title>Squad Server Alerter</title>
     <style>
-        body { font-family: sans-serif; padding: 10px; color: white; background-color: #222; }
+        body { font-family: sans-serif; padding: 10px; color: white; background-color: #222; margin: 0; }
+        .page-wrapper { max-width: calc(100% - 744px); margin: 0 auto; min-width: 200px; transform: translateX(100px); }
         .section { margin-bottom: 20px; }
         .region-group { margin-bottom: 15px; }
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; }
+        .grid { display: flex; flex-direction: column; gap: 5px; }
+        .maps-layout { display: flex; gap: 60px; align-items: flex-start; }
+        .maps-column { display: flex; flex-direction: column; }
         button { padding: 10px 20px; font-size: 16px; cursor: pointer; color: black; font-weight: bold;}
         #results { margin-top: 20px; padding: 10px; background: #444; border-radius: 5px; display: none; word-wrap: break-word; }
-        
-        /* New CSS for rendering the filtered servers beautifully */
         .server-card { background: #333; padding: 12px; margin-top: 10px; border-left: 5px solid #4CAF50; border-radius: 4px; }
         .server-name { font-weight: bold; font-size: 1.1em; color: #4CAF50; margin-bottom: 5px; }
         .server-details { font-size: 0.9em; color: #ccc; }
+        .country-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
+        .country-row label { white-space: nowrap; }
     </style>
 </head>
 <body>
+    <div class="page-wrapper">
     <h1>Squad Server Alerter</h1>
     
     <div id="filters">
-        <div class="section">
-            <h3>Minimum Player Count (0-98)</h3>
-            <input type="number" id="playerCount" min="0" max="98">
-        </div>
+        <div class="section" style="display:flex; align-items:center; gap:20px;">
+    <label>
+        <strong>Minimum Player Count (0-98)</strong>
+        <input
+            type="number"
+            id="playerCount"
+            min="0"
+            max="98"
+            style="margin-left:8px; width:70px;"
+        >
+    </label>
+
+    <label>
+        <strong>Maximum Player Count (1-98)</strong>
+        <input
+            type="number"
+            id="maxPlayerCount"
+            min="1"
+            max="98"
+            style="margin-left:8px; width:70px;"
+        >
+    </label>
+
+    <button onclick="filterServers()">Filter</button>
+</div>
+
+    <div id="results"></div>
 
         <div class="section">
             <h3>Server Regions</h3>
@@ -34,6 +61,90 @@
             <label><input type="checkbox" name="region" value="Australia"> Australia</label>
             <label><input type="checkbox" name="region" value="Africa"> Africa</label>
             <label><input type="checkbox" name="region" value="South America"> South America</label>
+        </div>
+
+        <div class="section">
+            <h3>Excluded Countries</h3>
+            <div class="country-row">
+                <label><input type="checkbox" name="excludedCountry" value="DE"> DE</label>
+                <label><input type="checkbox" name="excludedCountry" value="FR"> FR</label>
+                <label><input type="checkbox" name="excludedCountry" value="GB"> GB</label>
+                <label><input type="checkbox" name="excludedCountry" value="NL"> NL</label>
+                <label><input type="checkbox" name="excludedCountry" value="SE"> SE</label>
+                <label><input type="checkbox" name="excludedCountry" value="FI"> FI</label>
+                <label><input type="checkbox" name="excludedCountry" value="PL"> PL</label>
+                <label><input type="checkbox" name="excludedCountry" value="ES"> ES</label>
+                <label><input type="checkbox" name="excludedCountry" value="IT"> IT</label>
+                <label><input type="checkbox" name="excludedCountry" value="RU"> RU</label>
+                <label><input type="checkbox" name="excludedCountry" value="UA"> UA</label>
+                <label><input type="checkbox" name="excludedCountry" value="CH"> CH</label>
+                <label><input type="checkbox" name="excludedCountry" value="AT"> AT</label>
+                <label><input type="checkbox" name="excludedCountry" value="DK"> DK</label>
+                <label><input type="checkbox" name="excludedCountry" value="NO"> NO</label>
+                <label><input type="checkbox" name="excludedCountry" value="BE"> BE</label>
+                <label><input type="checkbox" name="excludedCountry" value="IE"> IE</label>
+                <label><input type="checkbox" name="excludedCountry" value="PT"> PT</label>
+                <label><input type="checkbox" name="excludedCountry" value="CZ"> CZ</label>
+                <label><input type="checkbox" name="excludedCountry" value="RO"> RO</label>
+                <label><input type="checkbox" name="excludedCountry" value="TR"> TR</label>
+                <label><input type="checkbox" name="excludedCountry" value="HU"> HU</label>
+            </div>
+            <div class="country-row">
+                <label><input type="checkbox" name="excludedCountry" value="SK"> SK</label>
+                <label><input type="checkbox" name="excludedCountry" value="HR"> HR</label>
+                <label><input type="checkbox" name="excludedCountry" value="RS"> RS</label>
+                <label><input type="checkbox" name="excludedCountry" value="BG"> BG</label>
+                <label><input type="checkbox" name="excludedCountry" value="GR"> GR</label>
+                <label><input type="checkbox" name="excludedCountry" value="LT"> LT</label>
+                <label><input type="checkbox" name="excludedCountry" value="LV"> LV</label>
+                <label><input type="checkbox" name="excludedCountry" value="EE"> EE</label>
+                <label><input type="checkbox" name="excludedCountry" value="SI"> SI</label>
+                <label><input type="checkbox" name="excludedCountry" value="LU"> LU</label>
+                <label><input type="checkbox" name="excludedCountry" value="MK"> MK</label>
+                <label><input type="checkbox" name="excludedCountry" value="AL"> AL</label>
+                <label><input type="checkbox" name="excludedCountry" value="BA"> BA</label>
+                <label><input type="checkbox" name="excludedCountry" value="ME"> ME</label>
+                <label><input type="checkbox" name="excludedCountry" value="MD"> MD</label>
+                <label><input type="checkbox" name="excludedCountry" value="BY"> BY</label>
+                <label><input type="checkbox" name="excludedCountry" value="GE"> GE</label>
+                <label><input type="checkbox" name="excludedCountry" value="AM"> AM</label>
+                <label><input type="checkbox" name="excludedCountry" value="AZ"> AZ</label>
+                <label><input type="checkbox" name="excludedCountry" value="KZ"> KZ</label>
+            </div>
+            <div class="country-row">
+                <label><input type="checkbox" name="excludedCountry" value="US"> US</label>
+                <label><input type="checkbox" name="excludedCountry" value="CA"> CA</label>
+                <label><input type="checkbox" name="excludedCountry" value="MX"> MX</label>
+                <label><input type="checkbox" name="excludedCountry" value="AU"> AU</label>
+                <label><input type="checkbox" name="excludedCountry" value="NZ"> NZ</label>
+            </div>
+            <div class="country-row">
+                <label><input type="checkbox" name="excludedCountry" value="CN"> CN</label>
+                <label><input type="checkbox" name="excludedCountry" value="JP"> JP</label>
+                <label><input type="checkbox" name="excludedCountry" value="KR"> KR</label>
+                <label><input type="checkbox" name="excludedCountry" value="SG"> SG</label>
+                <label><input type="checkbox" name="excludedCountry" value="TW"> TW</label>
+                <label><input type="checkbox" name="excludedCountry" value="HK"> HK</label>
+                <label><input type="checkbox" name="excludedCountry" value="MY"> MY</label>
+                <label><input type="checkbox" name="excludedCountry" value="TH"> TH</label>
+                <label><input type="checkbox" name="excludedCountry" value="VN"> VN</label>
+                <label><input type="checkbox" name="excludedCountry" value="IN"> IN</label>
+                <label><input type="checkbox" name="excludedCountry" value="ID"> ID</label>
+                <label><input type="checkbox" name="excludedCountry" value="PH"> PH</label>
+            </div>
+            <div class="country-row">
+                <label><input type="checkbox" name="excludedCountry" value="ZA"> ZA</label>
+                <label><input type="checkbox" name="excludedCountry" value="EG"> EG</label>
+                <label><input type="checkbox" name="excludedCountry" value="MA"> MA</label>
+                <label><input type="checkbox" name="excludedCountry" value="KE"> KE</label>
+                <label><input type="checkbox" name="excludedCountry" value="NG"> NG</label>
+                <label><input type="checkbox" name="excludedCountry" value="BR"> BR</label>
+                <label><input type="checkbox" name="excludedCountry" value="AR"> AR</label>
+                <label><input type="checkbox" name="excludedCountry" value="CL"> CL</label>
+                <label><input type="checkbox" name="excludedCountry" value="CO"> CO</label>
+                <label><input type="checkbox" name="excludedCountry" value="PE"> PE</label>
+                <label><input type="checkbox" name="excludedCountry" value="UY"> UY</label>
+            </div>
         </div>
 
         <div class="section">
@@ -50,83 +161,93 @@
 
         <div class="section">
             <h3>Maps</h3>
-            <div class="region-group">
-                <h4>Europe</h4>
-                <div class="grid">
-                    <label><input type="checkbox" name="map" value="Harju"> Harju</label>
-                    <label><input type="checkbox" name="map" value="Skorpo"> Skorpo</label>
-                    <label><input type="checkbox" name="map" value="Belaya"> Belaya</label>
-                    <label><input type="checkbox" name="map" value="Black Coast"> Black Coast</label>
-                    <label><input type="checkbox" name="map" value="Fool's Road"> Fool's Road</label>
-                    <label><input type="checkbox" name="map" value="Gorodok"> Gorodok</label>
-                    <label><input type="checkbox" name="map" value="Mestia"> Mestia</label>
-                    <label><input type="checkbox" name="map" value="Narva"> Narva</label>
-                    <label><input type="checkbox" name="map" value="Yehorivka"> Yehorivka</label>
+            <div class="maps-layout">
+                <div class="maps-column">
+                    <div class="region-group">
+                        <h4>Europe</h4>
+                        <div class="grid">
+                            <label><input type="checkbox" name="map" value="Harju"> Harju</label>
+                            <label><input type="checkbox" name="map" value="Skorpo"> Skorpo</label>
+                            <label><input type="checkbox" name="map" value="Belaya"> Belaya</label>
+                            <label><input type="checkbox" name="map" value="Black Coast"> Black Coast</label>
+                            <label><input type="checkbox" name="map" value="Fool's Road"> Fool's Road</label>
+                            <label><input type="checkbox" name="map" value="Gorodok"> Gorodok</label>
+                            <label><input type="checkbox" name="map" value="Mestia"> Mestia</label>
+                            <label><input type="checkbox" name="map" value="Narva"> Narva</label>
+                            <label><input type="checkbox" name="map" value="Yehorivka"> Yehorivka</label>
+                        </div>
+                    </div>
+                    <div class="region-group">
+                        <h4>North America</h4>
+                        <div class="grid">
+                            <label><input type="checkbox" name="map" value="Manicouagan"> Manicouagan</label>
+                            <label><input type="checkbox" name="map" value="Goose Bay"> Goose Bay</label>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="region-group">
-                <h4>North America</h4>
-                <div class="grid">
-                    <label><input type="checkbox" name="map" value="Manicouagan"> Manicouagan</label>
-                    <label><input type="checkbox" name="map" value="Goose Bay"> Goose Bay</label>
+                <div class="maps-column">
+                    <div class="region-group">
+                        <h4>Middle East</h4>
+                        <div class="grid">
+                            <label><input type="checkbox" name="map" value="Al Basrah"> Al Basrah</label>
+                            <label><input type="checkbox" name="map" value="Anvil"> Anvil</label>
+                            <label><input type="checkbox" name="map" value="Fallujah"> Fallujah</label>
+                            <label><input type="checkbox" name="map" value="Mutaha"> Mutaha</label>
+                            <label><input type="checkbox" name="map" value="Tallil Outskirts"> Tallil Outskirts</label>
+                        </div>
+                    </div>
+                    <div class="region-group">
+                        <h4>Training</h4>
+                        <div class="grid">
+                            <label><input type="checkbox" name="map" value="Jensen's Range"> Jensen's Range</label>
+                            <label><input type="checkbox" name="map" value="Pacific Proving Grounds"> Pacific Proving Grounds</label>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="region-group">
-                <h4>Southern-/Eastern Asia</h4>
-                <div class="grid">
-                    <label><input type="checkbox" name="map" value="Sanxian Islands"> Sanxian Islands</label>
-                    <label><input type="checkbox" name="map" value="Chora"> Chora</label>
-                    <label><input type="checkbox" name="map" value="Kamdesh Highlands"> Kamdesh Highlands</label>
-                    <label><input type="checkbox" name="map" value="Kohat Toi"> Kohat Toi</label>
-                    <label><input type="checkbox" name="map" value="Kokan"> Kokan</label>
-                    <label><input type="checkbox" name="map" value="Lashkar Valley"> Lashkar Valley</label>
-                    <label><input type="checkbox" name="map" value="Logar Valley"> Logar Valley</label>
-                    <label><input type="checkbox" name="map" value="Sumari Bala"> Sumari Bala</label>
-                </div>
-            </div>
-            <div class="region-group">
-                <h4>Middle East</h4>
-                <div class="grid">
-                    <label><input type="checkbox" name="map" value="Al Basrah"> Al Basrah</label>
-                    <label><input type="checkbox" name="map" value="Anvil"> Anvil</label>
-                    <label><input type="checkbox" name="map" value="Fallujah"> Fallujah</label>
-                    <label><input type="checkbox" name="map" value="Mutaha"> Mutaha</label>
-                    <label><input type="checkbox" name="map" value="Tallil Outskirts"> Tallil Outskirts</label>
-                </div>
-            </div>
-            <div class="region-group">
-                <h4>Training</h4>
-                <div class="grid">
-                    <label><input type="checkbox" name="map" value="Jensen's Range"> Jensen's Range</label>
-                    <label><input type="checkbox" name="map" value="Pacific Proving Grounds"> Pacific Proving Grounds</label>
+                <div class="maps-column">
+                    <div class="region-group">
+                        <h4>Southern-/Eastern Asia</h4>
+                        <div class="grid">
+                            <label><input type="checkbox" name="map" value="Sanxian Islands"> Sanxian Islands</label>
+                            <label><input type="checkbox" name="map" value="Chora"> Chora</label>
+                            <label><input type="checkbox" name="map" value="Kamdesh Highlands"> Kamdesh Highlands</label>
+                            <label><input type="checkbox" name="map" value="Kohat Toi"> Kohat Toi</label>
+                            <label><input type="checkbox" name="map" value="Kokan"> Kokan</label>
+                            <label><input type="checkbox" name="map" value="Lashkar Valley"> Lashkar Valley</label>
+                            <label><input type="checkbox" name="map" value="Logar Valley"> Logar Valley</label>
+                            <label><input type="checkbox" name="map" value="Sumari Bala"> Sumari Bala</label>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <button onclick="filterServers()">Filter</button>
     </div>
-
-    <div id="results"></div>
+    </div>
 
     <script>
         const STORAGE_KEY = 'squadServerAlerterState';
 
         const defaultSettings = {
             playerCount: "40",
+            maxPlayerCount: "86",
             regions: ["Europe"],
             modes: ["RAAS", "AAS", "Invasion", "Insurgency"],
             maps: [
                 "Harju", "Skorpo", "Belaya", "Black Coast", "Fool's Road", "Gorodok", "Mestia", "Narva", "Yehorivka", 
                 "Manicouagan", "Goose Bay", "Sanxian Islands", "Al Basrah"
-            ]
+            ],
+            excludedCountries: []
         };
 
         function saveState() {
             const state = {
                 playerCount: document.getElementById('playerCount').value,
+                maxPlayerCount: document.getElementById('maxPlayerCount').value,
                 regions: Array.from(document.querySelectorAll('input[name="region"]:checked')).map(cb => cb.value),
                 modes: Array.from(document.querySelectorAll('input[name="mode"]:checked')).map(cb => cb.value),
-                maps: Array.from(document.querySelectorAll('input[name="map"]:checked')).map(cb => cb.value)
+                maps: Array.from(document.querySelectorAll('input[name="map"]:checked')).map(cb => cb.value),
+                excludedCountries: Array.from(document.querySelectorAll('input[name="excludedCountry"]:checked')).map(cb => cb.value)
             };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         }
@@ -136,7 +257,8 @@
             const state = saved ? JSON.parse(saved) : defaultSettings;
 
             document.getElementById('playerCount').value = state.playerCount;
-            
+            document.getElementById('maxPlayerCount').value = state.maxPlayerCount || "86";
+
             document.querySelectorAll('input[name="region"]').forEach(cb => {
                 cb.checked = state.regions.includes(cb.value);
             });
@@ -145,6 +267,9 @@
             });
             document.querySelectorAll('input[name="map"]').forEach(cb => {
                 cb.checked = state.maps.includes(cb.value);
+            });
+            document.querySelectorAll('input[name="excludedCountry"]').forEach(cb => {
+                cb.checked = (state.excludedCountries || []).includes(cb.value);
             });
         }
 
@@ -157,44 +282,114 @@
 
         window.onload = init;
 
-        function filterServers() {
+        async function fetchAllServers(resultsDiv) {
+    const allServers = [];
+    let nextUrl = 'https://api.battlemetrics.com/servers?filter%5Bgame%5D=squad&page%5Bsize%5D=100';
+    let pageNum = 1;
+
+    while (nextUrl) {
+        resultsDiv.textContent =
+            `Fetching page ${pageNum}… (${allServers.length} servers so far)`;
+
+        const response = await fetch(nextUrl, {
+            headers: { "Accept": "application/vnd.api+json" }
+        });
+
+        const data = await response.json();
+
+        // Treat BattleMetrics "Invalid Response" 500 as end-of-pagination
+        if (
+            data &&
+            Array.isArray(data.errors) &&
+            data.errors.some(error =>
+                error.status === "500" &&
+                error.title === "Invalid Response"
+            )
+        ) {
+            console.warn(
+                `[Squad Server Alerter] Reached end of pagination at page ${pageNum}.`,
+                data
+            );
+            break;
+        }
+
+        // Normal end condition
+        if (!data || !Array.isArray(data.data)) {
+            console.warn(
+                `[Squad Server Alerter] Unexpected response on page ${pageNum}, stopping pagination.`,
+                data
+            );
+            break;
+        }
+
+        allServers.push(...data.data);
+
+        nextUrl =
+            data.links && data.links.next
+                ? data.links.next
+                : null;
+
+        pageNum++;
+    }
+
+    return allServers;
+}
+
+        async function filterServers() {
             const resultsDiv = document.getElementById('results');
             resultsDiv.style.display = "block";
-            resultsDiv.innerHTML = "Fetching and filtering servers...";
+            resultsDiv.textContent = "Fetching and filtering...";
 
-            const url = 'https://api.battlemetrics.com/servers?filter%5Bgame%5D=squad&page%5Bsize%5D=50';
-            
-            // Get the user's minimum player count input
             const minPlayersInput = parseInt(document.getElementById('playerCount').value) || 0;
+            const maxPlayersInput = parseInt(document.getElementById('maxPlayerCount').value) || 98;
 
-            fetch(url, { headers: { "Accept": "application/vnd.api+json" } })
-            .then(response => response.json())
-            .then(data => {
-                const allServers = data.data;
+            const selectedRegions = Array.from(document.querySelectorAll('input[name="region"]:checked')).map(cb => cb.value);
+            const excludedCountries = Array.from(document.querySelectorAll('input[name="excludedCountry"]:checked')).map(cb => cb.value);
 
-                // FILTERING LOGIC: Here we check if the server's player count is >= minPlayersInput
+            const regionMap = {
+                "Europe": ["DE", "FR", "GB", "NL", "SE", "FI", "PL", "ES", "IT", "RU", "UA", "CH", "AT", "DK", "NO", "BE", "IE", "PT", "CZ", "RO",
+                           "TR", "HU", "SK", "HR", "RS", "BG", "GR", "LT", "LV", "EE", "SI", "LU", "MK", "AL", "BA", "ME", "MD", "BY", "GE", "AM", "AZ", "KZ"],
+                "North America": ["US", "CA", "MX"],
+                "Asia": ["CN", "JP", "KR", "SG", "TW", "HK", "MY", "TH", "VN", "IN", "ID", "PH"],
+                "Australia": ["AU", "NZ"],
+                "Africa": ["ZA", "EG", "MA", "KE", "NG"],
+                "South America": ["BR", "AR", "CL", "CO", "PE", "UY"]
+            };
+
+            try {
+                const allServers = await fetchAllServers(resultsDiv);
+                resultsDiv.textContent = `Fetched ${allServers.length} servers total, filtering…`;
+
                 const filtered = allServers.filter(server => {
-                    const players = server.attributes.players || 0;
-                    return players >= minPlayersInput;
+                    const attr = server.attributes;
+                    
+                    if ((attr.players || 0) < minPlayersInput) return false;
+                    if ((attr.players || 0) > maxPlayersInput) return false;
+                    
+                    if (selectedRegions.length > 0) {
+                        const isMatch = selectedRegions.some(regionName => 
+                            regionMap[regionName] && regionMap[regionName].includes(attr.country)
+                        );
+                        if (!isMatch) return false;
+                    }
+
+                    if (excludedCountries.length > 0 && excludedCountries.includes(attr.country)) return false;
+
+                    return true;
                 });
                 
-                let htmlOutput = `<h3>Found ${filtered.length} servers with at least ${minPlayersInput} players:</h3>`;
-
-                filtered.forEach(server => {
-                    const attr = server.attributes;
+                let htmlOutput = `<h3>Found ${filtered.length} servers (out of ${allServers.length} total fetched):</h3>`;
+                filtered.forEach(s => {
                     htmlOutput += `
-                        <div class="server-card" style="background:#333; padding:10px; margin:5px 0; border-radius:5px;">
-                            <div class="server-name" style="color:#4CAF50; font-weight:bold;">${attr.name}</div>
-                            <div class="server-details">Players: ${attr.players}/${attr.maxPlayers}</div>
-                        </div>
-                    `;
+                        <div style="background:#333; padding:10px; margin:5px 0; border-radius:5px;">
+                            <strong>${s.attributes.name}</strong><br>
+                            Players: ${s.attributes.players} | Country: ${s.attributes.country}
+                        </div>`;
                 });
-
                 resultsDiv.innerHTML = htmlOutput;
-            })
-            .catch(error => {
-                resultsDiv.innerHTML = "<strong>Error:</strong> " + error.message;
-            });
+            } catch(err) {
+                resultsDiv.textContent = "Error: " + err.message;
+            }
         }
     </script>
 </body>
