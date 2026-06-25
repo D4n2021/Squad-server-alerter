@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Squad Server Alerter</title>
+    <title>Squad Server Superfilter</title>
     <style>
         body { font-family: sans-serif; padding: 10px; color: white; background-color: #222; margin: 0; }
         .page-wrapper { max-width: calc(100% - 744px); margin: 0 auto; min-width: 200px; transform: translateX(100px); }
@@ -22,7 +22,7 @@
 </head>
 <body>
     <div class="page-wrapper">
-    <h1>Squad Server Alerter</h1>
+    <h1>Squad Server Superfilter</h1>
     
     <div id="filters">
         <div class="section" style="display:flex; align-items:center; gap:20px;">
@@ -226,7 +226,7 @@
     </div>
 
     <script>
-        const STORAGE_KEY = 'squadServerAlerterState';
+        const STORAGE_KEY = 'squadServerSuperfilterState';
 
         const defaultSettings = {
             playerCount: "40",
@@ -307,7 +307,7 @@
             )
         ) {
             console.warn(
-                `[Squad Server Alerter] Reached end of pagination at page ${pageNum}.`,
+                `[Squad Server Superfilter] Reached end of pagination at page ${pageNum}.`,
                 data
             );
             break;
@@ -316,7 +316,7 @@
         // Normal end condition
         if (!data || !Array.isArray(data.data)) {
             console.warn(
-                `[Squad Server Alerter] Unexpected response on page ${pageNum}, stopping pagination.`,
+                `[Squad Server Superfilter] Unexpected response on page ${pageNum}, stopping pagination.`,
                 data
             );
             break;
