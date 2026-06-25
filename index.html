@@ -55,11 +55,11 @@
 
         <div class="section" style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
             <label>
-                <strong>Include overwrite server-name string</strong>
+                <strong>Include override server-name string</strong>
                 <input type="text" id="includeStr" maxlength="8" style="margin-left:8px; width:90px;">
             </label>
             <label>
-                <strong>Exclude overwrite server-name string</strong>
+                <strong>Exclude override server-name string</strong>
                 <input type="text" id="excludeStr" maxlength="8" style="margin-left:8px; width:90px;">
             </label>
         </div>
@@ -397,7 +397,7 @@
                     return true;
                 });
 
-                // Include overwrite: merge in ALL servers matching the string, ignoring other filters
+                // Include override: merge in ALL servers matching the string, ignoring other filters
                 if (includeStr) {
                     const includeLower = includeStr.toLowerCase();
                     const includeMatches = allServers.filter(server =>
